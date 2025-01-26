@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 var OutDir = "./tmp"
@@ -31,6 +32,7 @@ func RunScript(filename string) error {
 	fileSavePath := filepath.Join(OutDir, filename)
 
 	cmd := exec.Command("bash", fileSavePath)
+	cmd.Stdin = strings.NewReader("y\n")
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
