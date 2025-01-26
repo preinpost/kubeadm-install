@@ -112,6 +112,14 @@ var KubeadmControlplaneAfterInitScript = func() {
 
 }
 
+var WaitForKubeApiServer = `#!/bin/bash
+until kubectl get nodes &> /dev/null; do
+    echo "Waiting for kube-apiserver to be ready..."
+    sleep 5
+done
+echo "kube-apiserver is ready!"
+`
+
 var InstallCniFlannel = `#!/bin/bash
 kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 `
