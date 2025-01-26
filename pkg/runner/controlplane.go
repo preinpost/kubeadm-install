@@ -47,7 +47,7 @@ func runScripts(ipAddr string) {
 
 	for _, script := range scriptList {
 		if script.useFunc {
-
+			script.contentFn()
 		} else {
 			if err := utils.RunScript(script.filename); err != nil {
 				err := fmt.Errorf("Error executing %s: %v\n", script.filename, err)
