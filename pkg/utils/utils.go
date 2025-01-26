@@ -28,7 +28,9 @@ func WriteScript(filename, content string) error {
 }
 
 func RunScript(filename string) error {
-	cmd := exec.Command("bash", filename)
+	fileSavePath := filepath.Join(OutDir, filename)
+
+	cmd := exec.Command("bash", fileSavePath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()

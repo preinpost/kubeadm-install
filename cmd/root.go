@@ -8,7 +8,7 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "kinstall",
+	Use:   "kubeadm-install",
 	Short: "Kubeadm Installer",
 	Long:  `쿠버네티스를 kubeadm 으로 설치하기 위한 스크립트 실행기 입니다.`,
 	Run: func(cmd *cobra.Command, args []string) {
