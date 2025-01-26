@@ -8,21 +8,23 @@ import (
 )
 
 type scriptInfo struct {
-	filename string
-	content  string
-	step     string
+	filename  string
+	content   string
+	contentFn func()
+	step      string
+	useFunc   bool
 }
 
 func getScripts(ipAddr string) []scriptInfo {
 	return []scriptInfo{
-		{"01_vm-env-edit.sh", script.VmEnvEditScript, "swap diabled"},
-		{"02_resolved-edit.sh", script.ResolvedEditScript, "dns edited"},
-		{"03_docker-install.sh", script.DockerInstallScript, "docker installed"},
-		{"04_containerd-edit.sh", script.ContainerdEditScript, "containerd edited"},
-		{"05_iptables-setup.sh", script.IptablesSetupScript, "iptables setup"},
-		{"06_kubeadm-install.sh", script.KubeadmInstallScript, "kubeadm installed"},
-		{"07_kubeadm-init.sh", script.KubeadmInitScript(ipAddr), "kubeadm init done"}, // ipAddr 사용
-		{"08_kubeadm-init-after.sh", script.KubeadmControlplaneAfterInitScript, "kubeadm init after done"},
+		{filename: "01_vm-env-edit.sh", content: script.VmEnvEditScript, step: "swap disabled", useFunc: false},
+		{filename: "02_resolved-edit.sh", content: script.ResolvedEditScript, step: "dns edited", useFunc: false},
+		{filename: "03_docker-install.sh", content: script.DockerInstallScript, step: "docker installed", useFunc: false},
+		{filename: "04_containerd-edit.sh", content: script.ContainerdEditScript, step: "containerd edited", useFunc: false},
+		{filename: "05_iptables-setup.sh", content: script.IptablesSetupScript, step: "iptables setup", useFunc: false},
+		{filename: "06_kubeadm-install.sh", content: script.KubeadmInstallScript, step: "kubeadm installed", useFunc: false},
+		{filename: "07_kubeadm-init.sh", content: script.KubeadmInitScript(ipAddr), step: "kubeadm init done", useFunc: false}, // ipAddr 사용
+		{filename: "08_kubeadm-init-after.sh", contentFn: script.KubeadmControlplaneAfterInitScript, step: "kubeadm init after done", useFunc: true},
 	}
 }
 
@@ -44,10 +46,15 @@ func runScripts(ipAddr string) {
 	scriptList := getScripts(ipAddr)
 
 	for _, script := range scriptList {
-		if err := utils.RunScript(script.filename); err != nil {
-			err := fmt.Errorf("Error executing %s: %v\n", script.filename, err)
-			panic(err)
+		if script.useFunc {
+
+		} else {
+			if err := utils.RunScript(script.filename); err != nil {
+				err := fmt.Errorf("Error executing %s: %v\n", script.filename, err)
+				panic(err)
+			}
 		}
+
 		fmt.Printf("==== %s ====\n", script.step)
 	}
 }

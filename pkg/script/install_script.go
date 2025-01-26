@@ -1,6 +1,12 @@
 package script
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"os/user"
+	"path/filepath"
+)
 
 // 각 스크립트를 문자열로 정의합니다.
 var VmEnvEditScript = `#!/bin/bash
@@ -69,8 +75,39 @@ sudo kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address
 `, ipAddr)
 }
 
-var KubeadmControlplaneAfterInitScript = `#!/bin/bash
-mkdir -p $HOME/.kube
-sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-`
+var KubeadmControlplaneAfterInitScript = func() {
+
+	sudoUser := os.Getenv("SUDO_USER")
+	if sudoUser == "" {
+		fmt.Println("Error: This program must be run with sudo.")
+	}
+
+	originalUser, err := user.Lookup(sudoUser)
+	if err != nil {
+		fmt.Println("Error looking up original user:", err)
+	}
+
+	userHome := originalUser.HomeDir
+
+	kubeDir := filepath.Join(userHome, ".kube")
+	if err := os.MkdirAll(kubeDir, 0755); err != nil {
+		fmt.Println("Error creating .kube directory:", err)
+	}
+
+	// /etc/kubernetes/admin.conf 파일을 원래 사용자의 .kube/config로 복사
+	src := "/etc/kubernetes/admin.conf"
+	dst := filepath.Join(kubeDir, "config")
+	cmd := exec.Command("cp", "-i", src, dst)
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error copying admin.conf:", err)
+	}
+
+	// 파일 소유권 변경 (원래 사용자로)
+	cmd = exec.Command("chown", fmt.Sprintf("%s:%s", originalUser.Uid, originalUser.Gid), dst)
+	if err := cmd.Run(); err != nil {
+		fmt.Println("Error changing ownership:", err)
+	}
+
+	fmt.Println("Kubeconfig successfully set up in", dst)
+
+}
