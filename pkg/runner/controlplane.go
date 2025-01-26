@@ -25,6 +25,7 @@ func getScripts(ipAddr string) []scriptInfo {
 		{filename: "06_kubeadm-install.sh", content: script.KubeadmInstallScript, step: "kubeadm installed", useFunc: false},
 		{filename: "07_kubeadm-init.sh", content: script.KubeadmInitScript(ipAddr), step: "kubeadm init done", useFunc: false}, // ipAddr 사용
 		{filename: "08_kubeadm-init-after.sh", contentFn: script.KubeadmControlplaneAfterInitScript, step: "kubeadm init after done", useFunc: true},
+		{filename: "09_cni_installed.sh", content: script.InstallCniFlannel, step: "CNI Flannel Installed", useFunc: false},
 	}
 }
 

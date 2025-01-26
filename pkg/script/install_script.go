@@ -111,3 +111,7 @@ var KubeadmControlplaneAfterInitScript = func() {
 	fmt.Println("Kubeconfig successfully set up in", dst)
 
 }
+
+var InstallCniFlannel = `#!/bin/bash
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+`
