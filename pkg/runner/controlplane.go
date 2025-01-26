@@ -10,17 +10,19 @@ import (
 type scriptInfo struct {
 	filename string
 	content  string
+	step     string
 }
 
 func getScripts(ipAddr string) []scriptInfo {
 	return []scriptInfo{
-		{"01_vm-env-edit.sh", script.VmEnvEditScript},
-		{"02_resolved-edit.sh", script.ResolvedEditScript},
-		{"03_docker-install.sh", script.DockerInstallScript},
-		{"04_containerd-edit.sh", script.ContainerdEditScript},
-		{"05_iptables-setup.sh", script.IptablesSetupScript},
-		{"06_kubeadm-install.sh", script.KubeadmInstallScript},
-		{"07_kubeadm-init.sh", script.KubeadmInitScript(ipAddr)}, // ipAddr 사용
+		{"01_vm-env-edit.sh", script.VmEnvEditScript, "swap diabled"},
+		{"02_resolved-edit.sh", script.ResolvedEditScript, "dns edited"},
+		{"03_docker-install.sh", script.DockerInstallScript, "docker installed"},
+		{"04_containerd-edit.sh", script.ContainerdEditScript, "containerd edited"},
+		{"05_iptables-setup.sh", script.IptablesSetupScript, "iptables setup"},
+		{"06_kubeadm-install.sh", script.KubeadmInstallScript, "kubeadm installed"},
+		{"07_kubeadm-init.sh", script.KubeadmInitScript(ipAddr), "kubeadm init done"}, // ipAddr 사용
+		{"08_kubeadm-init-after.sh", script.KubeadmControlplaneAfterInitScript, "kubeadm init after done"},
 	}
 }
 
@@ -46,6 +48,7 @@ func runScripts(ipAddr string) {
 			err := fmt.Errorf("Error executing %s: %v\n", script.filename, err)
 			panic(err)
 		}
+		fmt.Printf("==== %s ====\n", script.step)
 	}
 }
 
